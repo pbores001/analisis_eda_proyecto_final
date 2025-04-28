@@ -94,3 +94,39 @@ def valores_a_minus(df):
 
 
 #Detectar nulos en numero y en porcentaje
+def nulos_num_porcentaje(df):
+    """Devuelve el numero y porcentaje de nulos de cada columna
+
+    Args:
+        df (dataframe): dataframe a analizar
+
+    Returns:
+        tupla: Dos series de pandas con los datos numéricos de nulos y los datos porcentuales
+    """
+
+    nulos_num = df.isnull().sum()
+    nulos_porcentaje = (round(df.isnull().sum()/df.shape[0]*100,2))
+
+    return nulos_num, nulos_porcentaje
+
+
+#Calcular nulos mediante un umbral
+def nulos_umbral(df, umbral = 10):
+
+    columns_with_nulls = df.columns[df.isnull().any()]
+    colmn_with_nulls_info = pd.DataFrame(
+        {
+            "Column": columns_with_nulls,
+            "Datatype": [df[col].dtype for col in columns_with_nulls],
+            "NullsCount":[df[col].isnull().sum() for col in columns_with_nulls],
+            "Nulls%":[((df[col].isnull().sum()/df.shape[0])*100) for col in columns_with_nulls],
+        }
+    )
+
+    display(colmn_with_nulls_info)
+    high_nulls_colmn = colmn_with_nulls_info[colmn_with_nulls_info['Nulls%'] > umbral]['Column'].tolist()
+    low_nulls_colmn = colmn_with_nulls_info[colmn_with_nulls_info['Nulls%'] <= umbral]['Column'].tolist()
+    return high_nulls_colmn, low_nulls_colmn
+
+
+
