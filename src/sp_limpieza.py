@@ -56,6 +56,18 @@ def eda_preliminar(df):
 
     print('____________________________')
 
+    print('CAMPOS VACÍOS POR COLUMNAS')
+
+    empty_counts = (
+        # solo columnas de texto             # recuentos de cada valor
+    df.select_dtypes(include='object').apply(lambda col: col.value_counts().get('', 0)))# obtener el count de '' o 0 si no existe
+    
+    empty_counts = empty_counts[empty_counts > 0]  # quedarnos solo con las que tienen >0
+    print(empty_counts)
+    
+    print('____________________________')
+
+
 
 
 #Pasar a minusculas los valores y los nombres de las columnas
