@@ -91,8 +91,6 @@ def valores_a_minus(df):
 
 
 
-
-
 #Detectar nulos en numero y en porcentaje
 def nulos_num_porcentaje(df):
     """Devuelve el numero y porcentaje de nulos de cada columna
