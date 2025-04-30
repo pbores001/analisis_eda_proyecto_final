@@ -109,22 +109,32 @@ def nulos_num_porcentaje(df):
 
 
 #Calcular nulos mediante un umbral
-def nulos_umbral(df, umbral = 10):
 
-    columns_with_nulls = df.columns[df.isnull().any()]
-    colmn_with_nulls_info = pd.DataFrame(
-        {
-            "Column": columns_with_nulls,
-            "Datatype": [df[col].dtype for col in columns_with_nulls],
-            "NullsCount":[df[col].isnull().sum() for col in columns_with_nulls],
-            "Nulls%":[((df[col].isnull().sum()/df.shape[0])*100) for col in columns_with_nulls],
-        }
-    )
 
-    display(colmn_with_nulls_info)
-    high_nulls_colmn = colmn_with_nulls_info[colmn_with_nulls_info['Nulls%'] > umbral]['Column'].tolist()
-    low_nulls_colmn = colmn_with_nulls_info[colmn_with_nulls_info['Nulls%'] <= umbral]['Column'].tolist()
-    return high_nulls_colmn, low_nulls_colmn
+#Pasar datos a formato fecha 
+def convertir_columna_a_fecha(df, columna, formato='%Y-%m-%d'):
+    """
+    Convierte una columna de un DataFrame a formato datetime en estilo inglés (YYYY-MM-DD por defecto).
+
+    Parámetros:
+    - df: DataFrame de pandas.
+    - columna: Nombre de la columna a convertir (string).
+    - formato: (opcional) Formato de la fecha. Por defecto '%Y-%m-%d'.
+
+    Devuelve:
+    - DataFrame con la columna convertida a datetime.
+    """
+    try:
+        df[columna] = pd.to_datetime(df[columna], format=formato, errors='coerce')
+        print(f"Columna '{columna}' convertida a datetime con formato {formato}.")
+    except Exception as e:
+        print(f"Error al convertir la columna '{columna}': {e}")
+    
+    return df
+
+
+
+
 
 
 
