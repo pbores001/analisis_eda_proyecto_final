@@ -134,6 +134,19 @@ def convertir_columna_a_fecha(df, columna, formato='%Y-%m-%d'):
 
 
 
+def obtener_estadisticas(df):
+    # Estadísticas numéricas
+    numeric_stats = df.describe().T  # describe() genera las estadísticas numéricas
+
+    # Estadísticas categóricas
+    categorical_stats = df.describe(include='O').T  # 'O' para tipo objeto (categóricas)
+
+    # Unir ambas estadísticas en un solo dataframe
+    stats_combined = pd.concat([numeric_stats, categorical_stats], axis=1, keys=['Estadísticas Numéricas', 'Estadísticas Categóricas'])
+
+    return stats_combined
+
+
 
 
 
