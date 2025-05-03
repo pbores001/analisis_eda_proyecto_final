@@ -111,7 +111,6 @@ print(nulos)
 
 
 
-#🔴🔴 VALORAR SI ESTO MERECE O ME QUEDO SOLO CON LA CELDA DE ABAJO, QUE PONE --> describe().
 # La columna 'due_date' tiene una cantidad elevada de nulos (20.33%) por lo que antes de imputarla comprobamos
 #como es la distribución de sus valores para poder así valorar si imputar los nulos, si por media, moda o mediana.
 
@@ -122,7 +121,7 @@ plt.ylabel('Cantidad')
 plt.xticks(rotation=45)
 plt.show()
 
-
+#Comprobamos las estadísticas descriptivas de 'due_date'
 print(df_homework['due_date'].describe())
 
 
@@ -409,3 +408,271 @@ std_stats
 
 #Analizamos los dataframes por separado y uniendo algunos para sacar visualziaciones relevantes. No hacemos un merge general de todos los dataframes a la vez
 # porque se generan una cantidad muy elevada de NaN.
+
+
+#🟢🟢Datos de asistencia.
+#Ver cual es el promedio de asistencia general.
+# Crear una columna numérica para mapear el estado de asistencia
+df_attendance['att_numeric'] = df_attendance['att_status'].map({
+    'present': 1,
+    'late': 1,
+    'left early': 1,
+    'absent': 0,
+    'excused': 0
+})
+
+#Calcular la tasa de asistencia general
+attendance_rate = df_attendance['att_numeric'].mean()*100
+print(f"El promedio de la asistencia general es {attendance_rate:.2f}%")
+
+
+
+
+#Ver la tasa de asistencia por grado.
+#Unimos el df_attendande con df_students para poder tener la información de la columna 'grade_level'.
+
+# Reset index para acceder a 'student_id' como columna (estaba como índice)
+df_students = df_students.reset_index()
+df_att_grade = pd.merge(df_attendance, df_students[['student_id', 'grade_level']], on='student_id', how='left')
+
+# Agrupar por 'grade_level' y calcular la tasa de asistencia promedio por grado
+att_by_grade = df_att_grade.groupby('grade_level')['att_numeric'].mean().reset_index()
+
+# Visualizar el gráfico
+plt.figure(figsize=(8,5))
+sns.barplot(data=att_by_grade, x='grade_level', y='att_numeric', palette='viridis')
+plt.title('Tasa promedio de Asistencia por Grado')
+plt.xlabel('Nivel de Grado')
+plt.ylabel('Tasa de Asistencia')
+plt.ylim(0,1)
+plt.show()
+
+
+
+#Ver los días con más número de ausencias.
+
+#Filtrar solo los registros 'absent' o 'excused'. 
+df_absent = df_attendance[df_attendance['att_status'].isin(['absent','excused'])]
+
+#Agrupar df_absent por la columna 'att_date' y contar las ausencias
+absences_by_date = df_absent.groupby('att_date').size().reset_index(name = 'absence_count')
+
+#Ordenar de mayor a menor para ver en primer lugar los días con más ausencias
+# Mostrar solo los top 10 días con más ausencias
+top_days = absences_by_date.head(10)
+
+plt.figure(figsize=(12,6))
+sns.barplot(data=top_days, x='att_date', y='absence_count', color='lightseagreen')
+plt.title('Top 10 Días con Más Ausencias')
+plt.xlabel('Fecha')
+plt.ylabel('Número de Ausencias')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+
+
+#Ver el porcentaje del total de registros representa cada tipo de asistencia
+#Usamos value_counts(normalize=True) para obtener el porcentaje de cada tipo de asistencia. Hacemos *100 para obtenerlo en porcentaje.
+attendance_counts = round(df_attendance['att_status'].value_counts(normalize=True)*100,2)
+print(attendance_counts)
+
+
+#Ver cuántos estudiantes están en cada categoría de asistencia (present, late, absent, etc.).
+plt.figure(figsize=(8,5))
+sns.countplot(data=df_attendance, x='att_status', palette='viridis')
+plt.title('Distribución de Estados de Asistencia')
+plt.xlabel('Estado de Asistencia')
+plt.ylabel('Cantidad de Registros')
+plt.show()
+
+
+
+#Datos de notas y rendimiento.
+
+
+#Hacer un histograma de exam_score con la curva KDE, para visualizar mejor como la distribución de notas.
+sns.histplot(df_performance['exam_score'], kde = True, color = 'lightseagreen')
+plt.title('Distribución de Notas de Examen')
+plt.xlabel('Nota de Examen')
+plt.show()
+
+#Hacer un histograma con la realización de tareas 'homework_completion_%'.
+sns.histplot(df_performance['homework_completion_%'], kde = True, color = 'lightseagreen')
+plt.title('Distribución de Porcentaje de Tareas Completadas')
+plt.xlabel('Porcentaje de Tareas')
+plt.show()
+
+
+
+#Asignaturas con mayores o menores notas (promedio)
+#Calcular promedio de asinaturas
+avg_scores_by_subject = df_performance.groupby('subject')['exam_score'].mean().sort_values()
+
+#Visualización de barras
+sns.barplot(x = avg_scores_by_subject.values, y = avg_scores_by_subject.index, palette = 'viridis')
+plt.title('Nota Media por Asignatura')
+plt.xlabel('Nota Media')
+plt.ylabel('Asignatura')
+plt.show()
+
+print(avg_scores_by_subject)
+
+
+
+#Promedio de nota por asignatura y grado
+#Reseteamos el indice de df_performance ya que tiene student_id como índice
+df_performance = df_performance.reset_index()
+
+#Hacer el merge por columna 'student_id'
+df_perf_grade = pd.merge(df_performance, df_students[['student_id','grade_level']], on = 'student_id', how = 'left')
+
+#Calcular el promedio por asignatura y grado agrupando por grado y asignatura
+avg_by_subject_grade = df_perf_grade.groupby(['grade_level','subject'])['exam_score'].mean().reset_index()
+
+#Visualizar gráfico
+plt.figure(figsize = (10,6))
+sns.barplot(data = avg_by_subject_grade, x = 'grade_level', y = 'exam_score', hue = 'subject', palette = 'Paired')
+plt.title('Promedio de Nota por Asignatura y Grado')
+plt.xlabel('Grado')
+plt.ylabel('Notas Promedio')
+plt.legend(title = 'Asignatura')
+plt.show()
+
+
+
+#Ver la distribución de 'exam_score' y 'subject'.
+sns.violinplot(data = df_performance, x = 'subject', y = 'exam_score', palette = 'viridis')
+plt.title('Distribución de Notas de Examen por Asignatura')
+plt.xlabel('Asignatura')
+plt.ylabel('Nota de Examen')
+plt.xticks(rotation=45)
+plt.show()
+
+
+
+#Datos de Homework.
+
+# Ver cantidad de tareas entregadas por asignatura.
+#Filtrar a tarvés de df_homework aquellas tareas con estado 'done' y el nombre de la asignatura
+submitted_by_subject = df_homework[df_homework['status'] == 'done']['subject'].value_counts()
+
+sns.countplot(data=df_homework, x='status', order = df_homework['status'].value_counts().index, color = 'lightseagreen')
+plt.title('Distribución de estados de tareas')
+plt.ylabel('Cantidad de Tareas')
+plt.xlabel('Estado de Tareas')
+plt.show()
+
+
+
+#Calculamos porcentaje de tareas entregadas por estudiantes
+hmw_per_stu = df_homework.groupby('student_id')['status'].value_counts().unstack().fillna(0)
+hmw_per_stu['porcentaje_entregadas'] = hmw_per_stu['done'] / hmw_per_stu.sum(axis=1) * 100
+
+# Histograma del porcentaje de tareas entregadas
+plt.figure(figsize=(8, 5))
+sns.histplot(hmw_per_stu['porcentaje_entregadas'], bins=20, color='lightseagreen', kde=True)
+plt.title('Distribución del % de Tareas Entregadas por Estudiante')
+plt.xlabel('% de Tareas Entregadas')
+plt.ylabel('Número de Estudiantes')
+plt.grid(True, linestyle='--', alpha=0.5)
+plt.tight_layout()
+plt.show()
+
+
+
+#Comunicacion con padres 
+#Tipo de mensajes más comunes de los padres con los profesores
+plt.figure(figsize=(8, 4))
+sns.countplot(data=df_communication, x='message_type', order=df_communication['message_type'].value_counts().index, color = 'lightseagreen')
+plt.title('Tipos de mensajes más comunes')
+plt.xticks(rotation=45)
+plt.show()
+
+
+
+#Frecuencia de mensajes por estudiante
+#Reseteamos el indice de df_communication ya que tiene student_id como índice
+df_communication = df_communication.reset_index()
+
+#Seleccionamos el numero de mensajes por numero de estudiantes
+msg_per_student = df_communication['student_id'].value_counts()
+
+plt.figure(figsize=(10, 4))
+sns.histplot(msg_per_student, bins=30)
+plt.title('Frecuencia de mensajes por estudiante')
+plt.xlabel('Cantidad de mensajes')
+plt.ylabel('Número de estudiantes')
+plt.show()
+
+
+
+# Comprobar si hay más mensajes en ciertos grados. Para ver si la comunicación entre padres y profesores varía según el grado.
+df_comm_grade = pd.merge(df_communication, df_students[['student_id', 'grade_level']], on='student_id', how='left')
+
+plt.figure(figsize=(8, 4))
+sns.countplot(data=df_comm_grade, x='grade_level', order=sorted(df_comm_grade['grade_level'].dropna().unique()), color = 'lightseagreen')
+plt.title('Cantidad de mensajes por grado')
+plt.xlabel('Grado')
+plt.ylabel('Cantidad de mensajes')
+plt.show()
+
+
+#Comprobar la frecuencia de mensajes por fecha
+msgs_by_date = df_communication.groupby('date_message').size()
+
+plt.figure(figsize=(12, 5))
+msgs_by_date.plot(color = 'lightseagreen')
+plt.title('Frecuencia de mensajes por fecha')
+plt.xlabel('Fecha')
+plt.ylabel('Cantidad de mensajes')
+plt.tight_layout()
+plt.show()
+
+
+#Datos de estudiantes.df_students. 
+#Comprobar la cantidad de estudiantes por grado
+plt.figure(figsize=(8,5))
+sns.countplot(data=df_students, x='grade_level', palette='viridis')
+plt.title('Cantidad de estudiantes por grado')
+plt.xlabel('Grado')
+plt.ylabel('Cantidad de Estudiantes')
+plt.show()
+
+
+
+#Comprobar la distribución de los estudiantes por edad 
+# Calcular edad (asumiendo análisis en 2025)
+hoy = pd.Timestamp('2025-01-01')
+df_students['edad'] = df_students['date_of_birth'].apply(lambda x: hoy.year - x.year if pd.notnull(x) else None)
+
+# Histograma de edades
+plt.figure(figsize=(8,5))
+sns.histplot(df_students['edad'].dropna(), bins=10, kde=True, color='lightseagreen')
+plt.title('Distribución de edades de los estudiantes')
+plt.xlabel('Edad')
+plt.ylabel('Cantidad')
+plt.show()
+
+
+#Comprobar si hay esrtudiantes que no tengan un contacto de emergencia.
+faltantes = df_students['emergency_contact'].isna().sum()
+total = len(df_students)
+
+print(f"Número de estudiantes sin contacto de emergencia: {faltantes}")
+print(f"Porcentaje: {faltantes / total:.1%}")
+
+
+#Ver la distribución de estudiantes por grado
+df_students['grade_level'].value_counts().plot.pie(autopct='%1.1f%%', figsize=(6,6), colors=sns.color_palette('viridis'))
+plt.title('Distribución de estudiantes por nivel/grado')
+plt.ylabel('')
+plt.show()
+
+#4.Guardar los archivos limpios
+#Guardar los dataframes limpios
+df_attendance.to_csv("../data/data_transformed/attendance_limpio.csv", index = False)
+df_homework.to_csv("../data/data_transformed/homework_limpio.csv", index = False)
+df_performance.to_csv("../data/data_transformed/performance_limpio.csv", index = False)
+df_students.to_csv("../data/data_transformed/students_limpio.csv", index = False)
+df_communication.to_csv("../data/data_transformed/communication_limpio.csv", index = False)
