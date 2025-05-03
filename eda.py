@@ -377,8 +377,35 @@ nulos_emergency_contact
 df_students = df_students.dropna(subset=['emergency_contact'])
 
 
+# 2. Análisis descriptivo de los datos
+# 2.1. Resumen estadístico
 
-#🟡🟡Homogeinizar los formatos de la columna emergency_contact
+
+#Ver estadísticas df_attendance
+att_stats = sp.obtener_estadisticas(df_attendance)
+att_stats
 
 
-#🟡🟡Unir todos los dataframes y comprobar que esta todo okey
+#Ver estadísticas df_homework
+hmw_stats = sp.obtener_estadisticas(df_homework)
+hmw_stats
+
+
+perf_stats = sp.obtener_estadisticas(df_performance)
+perf_stats
+
+
+#Ver estadísticas df_communication 
+comm_stats = sp.obtener_estadisticas(df_communication)
+comm_stats
+
+
+#Ver estadísticas df_students
+std_stats = sp.obtener_estadisticas(df_students)
+std_stats
+
+
+#. Visualización de los datos
+
+#Analizamos los dataframes por separado y uniendo algunos para sacar visualziaciones relevantes. No hacemos un merge general de todos los dataframes a la vez
+# porque se generan una cantidad muy elevada de NaN.
