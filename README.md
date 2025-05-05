@@ -1,9 +1,11 @@
 # analisis_eda_proyecto_final
 
-## Sesión 9
+## Sesión 10
 
-- power bi
-- informe read.me
+- Hemos reseteado todos los indices de todos los dataframes.
+- Pendiente: 
+    - power bi
+    - informe read.me
 
 
 

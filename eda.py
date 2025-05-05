@@ -409,6 +409,14 @@ std_stats
 #Analizamos los dataframes por separado y uniendo algunos para sacar visualziaciones relevantes. No hacemos un merge general de todos los dataframes a la vez
 # porque se generan una cantidad muy elevada de NaN.
 
+#Como vamos a necesitar resetear los índices de algunos dataframes para que 'student_id' salga como columna,
+#lo vamos a hacer con el resto de dataframes para que todos estén igual y no haya problemas en Power BI.
+df_attendance = df_attendance.reset_index()
+df_homework = df_homework.reset_index()
+df_performance = df_performance.reset_index()
+df_communication = df_communication.reset_index()
+df_students = df_students.reset_index()
+
 
 #🟢🟢Datos de asistencia.
 #Ver cual es el promedio de asistencia general.
@@ -430,9 +438,6 @@ print(f"El promedio de la asistencia general es {attendance_rate:.2f}%")
 
 #Ver la tasa de asistencia por grado.
 #Unimos el df_attendande con df_students para poder tener la información de la columna 'grade_level'.
-
-# Reset index para acceder a 'student_id' como columna (estaba como índice)
-df_students = df_students.reset_index()
 df_att_grade = pd.merge(df_attendance, df_students[['student_id', 'grade_level']], on='student_id', how='left')
 
 # Agrupar por 'grade_level' y calcular la tasa de asistencia promedio por grado
@@ -521,9 +526,6 @@ print(avg_scores_by_subject)
 
 
 #Promedio de nota por asignatura y grado
-#Reseteamos el indice de df_performance ya que tiene student_id como índice
-df_performance = df_performance.reset_index()
-
 #Hacer el merge por columna 'student_id'
 df_perf_grade = pd.merge(df_performance, df_students[['student_id','grade_level']], on = 'student_id', how = 'left')
 
@@ -592,9 +594,6 @@ plt.show()
 
 
 #Frecuencia de mensajes por estudiante
-#Reseteamos el indice de df_communication ya que tiene student_id como índice
-df_communication = df_communication.reset_index()
-
 #Seleccionamos el numero de mensajes por numero de estudiantes
 msg_per_student = df_communication['student_id'].value_counts()
 
