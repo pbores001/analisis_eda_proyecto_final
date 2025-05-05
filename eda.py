@@ -668,10 +668,25 @@ plt.title('Distribución de estudiantes por nivel/grado')
 plt.ylabel('')
 plt.show()
 
-#4.Guardar los archivos limpios
-#Guardar los dataframes limpios
-df_attendance.to_csv("../data/data_transformed/attendance_limpio.csv", index = False)
-df_homework.to_csv("../data/data_transformed/homework_limpio.csv", index = False)
-df_performance.to_csv("../data/data_transformed/performance_limpio.csv", index = False)
-df_students.to_csv("../data/data_transformed/students_limpio.csv", index = False)
-df_communication.to_csv("../data/data_transformed/communication_limpio.csv", index = False)
+#4.Guardar los dataframes limpios
+#Reiniciamos el índice de cada DataFrame y exportarlo a CSV correctamente para asegurar que los datos se cargan correctamente en PowerBI
+
+# df_students
+df_students.reset_index(drop=True, inplace=True)
+df_students.to_csv("../data/data_transformed/students_limpio.csv", index=False)
+
+# df_attendance
+df_attendance.reset_index(drop=True, inplace=True)
+df_attendance.to_csv("../data/data_transformed/attendance_limpio.csv", index=False)
+
+# df_homework
+df_homework.reset_index(drop=True, inplace=True)
+df_homework.to_csv("../data/data_transformed/homework_limpio.csv", index=False)
+
+# df_communication
+df_communication.reset_index(drop=True, inplace=True)
+df_communication.to_csv("../data/data_transformed/communication_limpio.csv", index=False)
+
+# df_performance
+df_performance.reset_index(drop=True, inplace=True)
+df_performance.to_csv("../data/data_transformed/performance_limpio.csv", index=False)
